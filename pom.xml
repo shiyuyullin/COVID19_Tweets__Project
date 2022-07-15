@@ -31,7 +31,7 @@
                 <configuration>
                     <archive>
                         <manifest>
-                            <mainClass>org.example.JetJob</mainClass>
+                            <mainClass>hello_hazelcast</mainClass>
                         </manifest>
                     </archive>
                 </configuration>
