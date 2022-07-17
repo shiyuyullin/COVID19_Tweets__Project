@@ -5,6 +5,8 @@ import com.hazelcast.jet.pipeline.BatchSource;
 import com.hazelcast.jet.pipeline.Pipeline;
 import com.hazelcast.jet.pipeline.Sinks;
 import com.hazelcast.jet.pipeline.Sources;
+import com.hazelcast.jet.pipeline.file.FileFormat;
+import com.hazelcast.jet.pipeline.file.FileSources;
 
 import java.io.Serializable;
 import java.nio.file.Files;
@@ -26,9 +28,11 @@ public class hello_hazelcast {
     private static Pipeline buildPipeline(String sourceDir) {
         Pipeline p = Pipeline.create();
 
-        BatchSource<SalesRecordLine> source = Sources.filesBuilder(sourceDir)
-                .glob("*.csv")
-                .build(path -> Files.lines(path).skip(1).map(SalesRecordLine::parse));
+        BatchSource<Summary_Mentions> source = Sources.filesBuilder(sourceDir)
+                .glob("2022_01_01_00_Summary_Mentions.csv")
+                .build(path -> Files.lines(path).skip(1).map(Summary_Mentions::parse));
+
+
 
         p.readFrom(source)
                 .filter(record -> record.getMentions().equalsIgnoreCase("@PalmerReport"))
@@ -39,12 +43,8 @@ public class hello_hazelcast {
     }
 
     public static void main(String[] args) {
-//        if (args.length != 1) {
-//            System.err.println("Usage:");
-//            System.err.println("  " + hello_hazelcast.class.getSimpleName() + " <sourceDir>");
-//            System.exit(1);
-//        }
-        final String sourceDir = "/Users/shiyulin/Desktop/archive/Summary_Mentions/2022_01";
+
+        final String sourceDir = "C:\\Users\\Shiyu\\Desktop\\archive\\Summary_Mentions\\2022_01";
 
         Pipeline p = buildPipeline(sourceDir);
 
@@ -57,18 +57,18 @@ public class hello_hazelcast {
     }
 
     /**
-     * Immutable data transfer object mapping the sales transaction.
+     * Immutable data transfer object mapping the Summary mention.
      */
-    private static class SalesRecordLine implements Serializable {
+    private static class Summary_Mentions implements Serializable {
         private static final DateTimeFormatter DATE_TIME_FORMATTER =
                 DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss", Locale.US);
 
         private String Tweet_ID;
         private String Mentions;
 
-        public static SalesRecordLine parse(String line) {
+        public static Summary_Mentions parse(String line) {
             String[] split = line.split(",");
-            SalesRecordLine record = new SalesRecordLine();
+            Summary_Mentions record = new Summary_Mentions();
             record.Tweet_ID = split[0];
             record.Mentions = split[1];
             return record;
