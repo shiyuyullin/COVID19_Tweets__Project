@@ -13,6 +13,14 @@ public class Summary_Mentions implements Serializable {
         Mentions = "";
     }
 
+    public static Summary_Mentions parse(String line) {
+        String[] split = line.split(",");
+        Summary_Mentions record = new Summary_Mentions();
+        record.Tweet_ID = split[0];
+        record.Mentions = split[1];
+        return record;
+    }
+
     public Summary_Mentions(String Tweet_ID, String Mentions){
         this.Tweet_ID = Tweet_ID;
         this.Mentions = Mentions;

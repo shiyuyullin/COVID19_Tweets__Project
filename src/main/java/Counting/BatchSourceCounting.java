@@ -1,7 +1,10 @@
 package Counting;
 
+import Models.Summary_Mentions;
+import com.hazelcast.function.ComparatorEx;
 import com.hazelcast.jet.Jet;
 import com.hazelcast.jet.JetInstance;
+import com.hazelcast.map.IMap;
 import pipeline_builder.Covid19HashtagPipeline;
 import com.hazelcast.jet.aggregate.AggregateOperations;
 import com.hazelcast.jet.pipeline.BatchSource;
@@ -18,7 +21,9 @@ import java.nio.file.Files;
 import java.io.Serializable;
 import java.nio.file.Files;
 import java.time.format.DateTimeFormatter;
+import java.util.Comparator;
 import java.util.Locale;
+import java.util.Map;
 
 public class BatchSourceCounting {
 
@@ -42,66 +47,30 @@ public class BatchSourceCounting {
         BatchSource<Summary_Mentions> source = Sources.filesBuilder(sourceDir)
                 .glob("*.csv")
                 .build(path -> Files.lines(path).skip(1).map(Summary_Mentions::parse));
-
-
-
-
+        // Count the top 10 mentions
+        p.readFrom(source)
+                .groupingKey(Summary_Mentions::getMentions)
+                .aggregate(AggregateOperations.counting())
+                .sort((ComparatorEx<Map.Entry<String, Long>>) (stringLongEntry, t1) -> stringLongEntry.getValue().compareTo(t1.getValue()))
+                .peek()
+                .writeTo(Sinks.map("statistics"));
         return p;
     }
 
     public static void main(String[] args) {
 
-        final String sourceDir = "F:\\archive\\Summary_Mentions\\2022_01";
+        final String sourceDir = "F:\\archive\\Summary_Mentions\\2022_01_subset";
 
-        Pipeline p = buildPipeline(sourceDir);
-
+//        Pipeline p = buildPipeline(sourceDir);
+        Pipeline p = mentionStatistics(sourceDir);
         JetInstance instance = Jet.bootstrappedInstance();
+        Jet.newJetInstance();
         try {
             instance.newJob(p).join();
-            Covid19HashtagPipeline covid19HashtagPipeline = new Covid19HashtagPipeline();
-            instance.newJob(covid19HashtagPipeline.buildPipeline()).join();
+            IMap<String, Long> count = instance.getMap("statistics");
         } finally {
             Jet.shutdownAll();
         }
     }
 
-    /**
-     * Immutable data transfer object mapping the Summary mention.
-     */
-    private static class Summary_Mentions implements Serializable {
-        private String Tweet_ID;
-        private String Mentions;
-
-        public static Summary_Mentions parse(String line) {
-            String[] split = line.split(",");
-            Summary_Mentions record = new Summary_Mentions();
-            record.Tweet_ID = split[0];
-            record.Mentions = split[1];
-            return record;
-        }
-
-        @Override
-        public String toString() {
-            return "Summary_Mentions{" +
-                    "Tweet_ID='" + Tweet_ID + '\'' +
-                    ", Mentions='" + Mentions + '\'' +
-                    '}';
-        }
-
-        public String getTweet_ID() {
-            return Tweet_ID;
-        }
-
-        public void setTweet_ID(String tweet_ID) {
-            Tweet_ID = tweet_ID;
-        }
-
-        public String getMentions() {
-            return Mentions;
-        }
-
-        public void setMentions(String mentions) {
-            Mentions = mentions;
-        }
-    }
 }
