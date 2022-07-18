@@ -1,17 +1,14 @@
 import com.hazelcast.jet.Jet;
 import com.hazelcast.jet.JetInstance;
+import pipeline_builder.Covid19HashtagPipeline;
 import com.hazelcast.jet.aggregate.AggregateOperations;
 import com.hazelcast.jet.pipeline.BatchSource;
 import com.hazelcast.jet.pipeline.Pipeline;
 import com.hazelcast.jet.pipeline.Sinks;
 import com.hazelcast.jet.pipeline.Sources;
-import com.hazelcast.jet.pipeline.file.FileFormat;
-import com.hazelcast.jet.pipeline.file.FileSources;
 
 import java.io.Serializable;
 import java.nio.file.Files;
-import java.time.LocalDateTime;
-import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
 import java.util.Locale;
 
@@ -51,6 +48,8 @@ public class hello_hazelcast {
         JetInstance instance = Jet.bootstrappedInstance();
         try {
             instance.newJob(p).join();
+            Covid19HashtagPipeline covid19HashtagPipeline = new Covid19HashtagPipeline();
+            instance.newJob(covid19HashtagPipeline.buildPipeline()).join();
         } finally {
             Jet.shutdownAll();
         }
