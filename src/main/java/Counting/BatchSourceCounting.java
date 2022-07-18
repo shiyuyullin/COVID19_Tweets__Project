@@ -27,7 +27,7 @@ import java.util.Map;
 
 public class BatchSourceCounting {
 
-    private static Pipeline buildPipeline(String sourceDir) {
+    private static Pipeline mentionCount(String sourceDir, String mention) {
         Pipeline p = Pipeline.create();
 
         BatchSource<Summary_Mentions> source = Sources.filesBuilder(sourceDir)
@@ -35,8 +35,7 @@ public class BatchSourceCounting {
                 .build(path -> Files.lines(path).skip(1).map(Summary_Mentions::parse));
 
         p.readFrom(source)
-                .filter(record -> record.getMentions().equalsIgnoreCase("@PalmerReport"))
-                .peek()
+                .filter(record -> record.getMentions().equalsIgnoreCase(mention))
                 .aggregate(AggregateOperations.counting())
                 .writeTo(Sinks.logger());
         return p;
@@ -61,8 +60,8 @@ public class BatchSourceCounting {
 
         final String sourceDir = "F:\\archive\\Summary_Mentions\\2022_01_subset";
 
-//        Pipeline p = buildPipeline(sourceDir);
-        Pipeline p = mentionStatistics(sourceDir);
+        Pipeline p = mentionCount(sourceDir, "@maaiavilaa");
+//        Pipeline p = mentionStatistics(sourceDir);
         JetInstance instance = Jet.bootstrappedInstance();
         Jet.newJetInstance();
         try {
