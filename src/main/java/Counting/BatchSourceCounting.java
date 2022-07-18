@@ -2,6 +2,7 @@ package Counting;
 
 import com.hazelcast.jet.Jet;
 import com.hazelcast.jet.JetInstance;
+import pipeline_builder.Covid19HashtagPipeline;
 import com.hazelcast.jet.aggregate.AggregateOperations;
 import com.hazelcast.jet.pipeline.BatchSource;
 import com.hazelcast.jet.pipeline.Pipeline;
@@ -13,6 +14,9 @@ import com.hazelcast.jet.pipeline.test.TestSources;
 import java.io.Serializable;
 import java.nio.file.Files;
 
+
+import java.io.Serializable;
+import java.nio.file.Files;
 import java.time.format.DateTimeFormatter;
 import java.util.Locale;
 
@@ -54,6 +58,8 @@ public class BatchSourceCounting {
         JetInstance instance = Jet.bootstrappedInstance();
         try {
             instance.newJob(p).join();
+            Covid19HashtagPipeline covid19HashtagPipeline = new Covid19HashtagPipeline();
+            instance.newJob(covid19HashtagPipeline.buildPipeline()).join();
         } finally {
             Jet.shutdownAll();
         }
