@@ -1,3 +1,5 @@
+package Counting;
+
 import com.hazelcast.jet.Jet;
 import com.hazelcast.jet.JetInstance;
 import com.hazelcast.jet.aggregate.AggregateOperations;
@@ -5,46 +7,47 @@ import com.hazelcast.jet.pipeline.BatchSource;
 import com.hazelcast.jet.pipeline.Pipeline;
 import com.hazelcast.jet.pipeline.Sinks;
 import com.hazelcast.jet.pipeline.Sources;
-import com.hazelcast.jet.pipeline.file.FileFormat;
-import com.hazelcast.jet.pipeline.file.FileSources;
+import com.hazelcast.jet.pipeline.test.TestSources;
+
 
 import java.io.Serializable;
 import java.nio.file.Files;
-import java.time.LocalDateTime;
-import java.time.ZoneOffset;
+
 import java.time.format.DateTimeFormatter;
 import java.util.Locale;
 
-/**
- * Demonstrates the usage of the file {@link Sources#filesBuilder sources}
- * in a job that reads a sales records in a CSV, filters possible contactless
- * transactions, aggregates transaction counts per payment type and prints
- * the results to standard output.
- * <p>
- * The sample CSV file is in {@code {module.dir}/data/sales.csv}.
- */
-public class hello_hazelcast {
+public class BatchSourceCounting {
 
     private static Pipeline buildPipeline(String sourceDir) {
         Pipeline p = Pipeline.create();
 
         BatchSource<Summary_Mentions> source = Sources.filesBuilder(sourceDir)
-                .glob("2022_01_01_00_Summary_Mentions.csv")
+                .glob("*.csv")
+                .build(path -> Files.lines(path).skip(1).map(Summary_Mentions::parse));
+
+        p.readFrom(source)
+                .filter(record -> record.getMentions().equalsIgnoreCase("@PalmerReport"))
+                .peek()
+                .aggregate(AggregateOperations.counting())
+                .writeTo(Sinks.logger());
+        return p;
+    }
+
+    private static Pipeline mentionStatistics(String sourceDir){
+        Pipeline p = Pipeline.create();
+        BatchSource<Summary_Mentions> source = Sources.filesBuilder(sourceDir)
+                .glob("*.csv")
                 .build(path -> Files.lines(path).skip(1).map(Summary_Mentions::parse));
 
 
 
-        p.readFrom(source)
-                .filter(record -> record.getMentions().equalsIgnoreCase("@PalmerReport"))
-                .aggregate(AggregateOperations.counting())
-                .writeTo(Sinks.logger());
 
         return p;
     }
 
     public static void main(String[] args) {
 
-        final String sourceDir = "C:\\Users\\Shiyu\\Desktop\\archive\\Summary_Mentions\\2022_01";
+        final String sourceDir = "F:\\archive\\Summary_Mentions\\2022_01";
 
         Pipeline p = buildPipeline(sourceDir);
 
@@ -60,9 +63,6 @@ public class hello_hazelcast {
      * Immutable data transfer object mapping the Summary mention.
      */
     private static class Summary_Mentions implements Serializable {
-        private static final DateTimeFormatter DATE_TIME_FORMATTER =
-                DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss", Locale.US);
-
         private String Tweet_ID;
         private String Mentions;
 
@@ -76,7 +76,7 @@ public class hello_hazelcast {
 
         @Override
         public String toString() {
-            return "SalesRecordLine{" +
+            return "Summary_Mentions{" +
                     "Tweet_ID='" + Tweet_ID + '\'' +
                     ", Mentions='" + Mentions + '\'' +
                     '}';

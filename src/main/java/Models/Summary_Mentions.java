@@ -1,11 +1,22 @@
-package models;
+package Models;
+
+import Counting.BatchSourceCounting;
 
 import java.io.Serializable;
 
 public class Summary_Mentions implements Serializable {
-
     private String Tweet_ID;
     private String Mentions;
+
+    public Summary_Mentions(){
+        Tweet_ID = "";
+        Mentions = "";
+    }
+
+    public Summary_Mentions(String Tweet_ID, String Mentions){
+        this.Tweet_ID = Tweet_ID;
+        this.Mentions = Mentions;
+    }
 
     @Override
     public String toString() {
