@@ -32,6 +32,7 @@ public class BatchSourceCounting {
 
         BatchSource<Summary_Mentions> source = Sources.filesBuilder(sourceDir)
                 .glob("*.csv")
+                .sharedFileSystem(true)
                 .build(path -> Files.lines(path).skip(1).map(Summary_Mentions::parse));
 
         p.readFrom(source)
@@ -45,6 +46,7 @@ public class BatchSourceCounting {
         Pipeline p = Pipeline.create();
         BatchSource<Summary_Mentions> source = Sources.filesBuilder(sourceDir)
                 .glob("*.csv")
+                .sharedFileSystem(true)
                 .build(path -> Files.lines(path).skip(1).map(Summary_Mentions::parse));
         // Count the top 10 mentions
         p.readFrom(source)
@@ -58,11 +60,11 @@ public class BatchSourceCounting {
 
     public static void main(String[] args) {
 
-        final String sourceDir = "F:\\archive\\Summary_Mentions\\2022_01_subset";
+        final String sourceDir = "F:\\archive\\Summary_Mentions\\2022_01";
 
         Pipeline p = mentionCount(sourceDir, "@maaiavilaa");
 //        Pipeline p = mentionStatistics(sourceDir);
-        JetInstance instance = Jet.bootstrappedInstance();
+        JetInstance instance = Jet.newJetInstance();
         Jet.newJetInstance();
         try {
             instance.newJob(p).join();
