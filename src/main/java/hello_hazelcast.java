@@ -1,20 +1,19 @@
 import com.hazelcast.jet.Jet;
 import com.hazelcast.jet.JetInstance;
-import com.hazelcast.jet.pipeline.Pipeline;
-import com.hazelcast.jet.pipeline.Sinks;
-import com.hazelcast.jet.pipeline.test.TestSources;
+import pipeline_builder.Covid19HashtagPipeline;
 
 public class hello_hazelcast {
 
     public static void main(String[] args) {
-        Pipeline p = Pipeline.create();
-        p.readFrom(TestSources.itemStream(10))
-                .withoutTimestamps()
-                .filter(event -> event.sequence() % 2 == 0)
-                .setName("filter out odd numbers")
-                .writeTo(Sinks.logger());
-        JetInstance jet = Jet.bootstrappedInstance();
-        jet.newJob(p).join();
+        JetInstance jet = null;
+        try {
+            jet = Jet.bootstrappedInstance();
+            Covid19HashtagPipeline covid19HashtagPipeline = new Covid19HashtagPipeline();
+            jet.newJob(covid19HashtagPipeline.buildPipeline()).join();
+        }
+        finally {
+            if(jet!=null) jet.shutdown();
+        }
     }
 
 }
