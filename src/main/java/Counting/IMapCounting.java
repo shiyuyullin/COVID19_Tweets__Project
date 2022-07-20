@@ -23,6 +23,7 @@ public class IMapCounting {
         // Building a batch source from csv files
         BatchSource<Map.Entry<Integer, Summary_Mentions>> source = Sources.filesBuilder(directory)
                 .glob("*.csv")
+                .sharedFileSystem(true)
                 .build(path -> Files.lines(path).skip(1).map(line -> {
                             String[] split = line.split(",");
                             Summary_Mentions record = new Summary_Mentions();
@@ -34,7 +35,6 @@ public class IMapCounting {
         // Dump file content into an IMap
         p.readFrom(source).writeTo(Sinks.map("Summary_Mentions"));
         jet.newJob(p).join();
-        Jet.newJetInstance();
     }
 
     public static void countMention(String mapName, String mention){
@@ -56,6 +56,8 @@ public class IMapCounting {
 
         // Creating two nodes in a cluster
         jet = Jet.newJetInstance();
+        Jet.newJetInstance();
+        Jet.newJetInstance();
         IMap<Integer, Summary_Mentions> summary_mentions = jet.getMap("Summary_Mentions");
         System.out.println("Populating map...");
         populateMap("Summary_Mentions", SOURCE_DIR_2022_01);
