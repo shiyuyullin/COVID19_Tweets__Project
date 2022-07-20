@@ -1,23 +1,21 @@
-package pipeline_builder;
+package Filtering.pipeline_builder;
 
 import com.hazelcast.jet.pipeline.*;
-import entity.Hashtag;
+import Filtering.entity.*;
 
 import java.nio.file.Files;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
+import java.util.*;
 
-public class Covid19HashtagPipeline implements PipelineBuilder {
+public class TweetFilterPipeline implements PipelineBuilder {
 
 
     @Override
-    public Pipeline buildPipeline() {
+    public Pipeline buildPipeline(ArrayList<String> directories) {
         Pipeline pipeline = Pipeline.create();
         ArrayList<BatchSource<Hashtag>> batchSourceArrayList = new ArrayList<>();
-        for(String dir : getHashtagDirectories()){
+        for(String dir : Objects.nonNull(directories) ? directories : getHashtagDirectories()){
             batchSourceArrayList.add(Sources.filesBuilder(dir)
-                    .glob("*.csv")
+                    .glob("2022_01_01*.csv")
                     .build(path -> Files.lines(path).skip(1).map(Hashtag::parse)));
         }
         BatchStage<Hashtag> batchStage = pipeline.readFrom(batchSourceArrayList.get(0));
@@ -25,12 +23,16 @@ public class Covid19HashtagPipeline implements PipelineBuilder {
             batchStage = batchStage.merge(pipeline.readFrom(batchSourceArrayList.get(i)));
         }
         batchStage
-                .filter(row -> row.getHastag().equalsIgnoreCase("#COVID19"))
-                .setName("Filter covid tweets")
-                .writeTo(Sinks.files("M:\\Concordia\\Summer 2022\\COMP 6231\\project\\results"));
+                .setName("Filter Tweets to Tweet Ids")
+                .writeTo(Sinks.mapWithMerging("tweetNameTweetIdsMap",
+                        Hashtag::getHastag,
+                        Hashtag::getTWEET_ID,
+                        (oldValue, newValue) -> oldValue + ", " + newValue)
+                );
         return batchStage.getPipeline();
     }
 
+//    Static directories for testing
     public static List<String> getHashtagDirectories(){
         return Arrays.asList("M:\\Concordia\\Summer 2022\\COMP 6231\\project\\archive (5)\\Summary_Hashtag\\2022_01"
         ,"M:\\Concordia\\Summer 2022\\COMP 6231\\project\\archive (5)\\Summary_Hashtag\\2022_02"
