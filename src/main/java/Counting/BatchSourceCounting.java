@@ -62,9 +62,10 @@ public class BatchSourceCounting {
 
         final String sourceDir = "F:\\archive\\Summary_Mentions\\2022_01";
 
-        Pipeline p = mentionCount(sourceDir, "@maaiavilaa");
-//        Pipeline p = mentionStatistics(sourceDir);
+//        Pipeline p = mentionCount(sourceDir, "@maaiavilaa");
+        Pipeline p = mentionStatistics(sourceDir);
         JetInstance instance = Jet.newJetInstance();
+        Jet.newJetInstance();
         Jet.newJetInstance();
         try {
             instance.newJob(p).join();
