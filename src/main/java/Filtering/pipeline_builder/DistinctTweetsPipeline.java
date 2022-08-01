@@ -16,7 +16,7 @@ public class DistinctTweetsPipeline implements PipelineBuilder{
         ArrayList<BatchSource<Hashtag>> batchSourceArrayList = new ArrayList<>();
         for(String dir : Objects.nonNull(directories) ? directories : getHashtagDirectories()){
             batchSourceArrayList.add(Sources.filesBuilder(dir)
-                    .glob("2022_01_01*.csv")
+                    .glob("*.csv")
                     .build(path -> Files.lines(path).skip(1).map(Hashtag::parse)));
         }
         BatchStage<Hashtag> batchStage = pipeline.readFrom(batchSourceArrayList.get(0));
@@ -32,8 +32,8 @@ public class DistinctTweetsPipeline implements PipelineBuilder{
     }
     //    Static directories for testing
     public static List<String> getHashtagDirectories(){
-        return Arrays.asList("M:\\Concordia\\Summer 2022\\COMP 6231\\project\\archive (5)\\Summary_Hashtag\\2022_01"
-                ,"M:\\Concordia\\Summer 2022\\COMP 6231\\project\\archive (5)\\Summary_Hashtag\\2022_02"
-                ,"M:\\Concordia\\Summer 2022\\COMP 6231\\project\\archive (5)\\Summary_Hashtag\\2022_03");
+        return Arrays.asList("M:\\Concordia\\Summer 2022\\COMP 6231\\project\\archive (5)\\Summary_Hashtag\\2022_01");
+//                ,"M:\\Concordia\\Summer 2022\\COMP 6231\\project\\archive (5)\\Summary_Hashtag\\2022_02"
+//                ,"M:\\Concordia\\Summer 2022\\COMP 6231\\project\\archive (5)\\Summary_Hashtag\\2022_03");
     }
 }

@@ -19,6 +19,11 @@ public class IMapCounting {
 
     public static void populateMap(String mapName, String directory){
 
+       Pipeline p = buildPipelineForPopulation(mapName,directory);
+        jet.newJob(p).join();
+    }
+
+    public static Pipeline buildPipelineForPopulation(String mapName, String directory){
         Pipeline p = Pipeline.create();
         // Building a batch source from csv files
         BatchSource<Map.Entry<Integer, Summary_Mentions>> source = Sources.filesBuilder(directory)
@@ -34,10 +39,10 @@ public class IMapCounting {
                 ));
         // Dump file content into an IMap
         p.readFrom(source).writeTo(Sinks.map("Summary_Mentions"));
-        jet.newJob(p).join();
+        return p;
     }
 
-    public static void countMention(String mapName, String mention){
+    public static Pipeline buildPipelineForCounting(String mapName, String mention){
         Pipeline p = Pipeline.create();
         p.readFrom(Sources.map(mapName))
                 .filter(mapEntry ->{
@@ -48,6 +53,11 @@ public class IMapCounting {
                 .rebalance()
                 .aggregate(AggregateOperations.counting())
                 .writeTo(Sinks.logger());
+        return p;
+    }
+
+    public static void countMention(String mapName, String mention){
+       Pipeline p = buildPipelineForCounting(mapName, mention);
         jet.newJob(p).join();
     }
 
