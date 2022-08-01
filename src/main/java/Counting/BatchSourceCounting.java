@@ -4,13 +4,12 @@ import Models.Summary_Mentions;
 import com.hazelcast.function.ComparatorEx;
 import com.hazelcast.jet.Jet;
 import com.hazelcast.jet.JetInstance;
-import com.hazelcast.map.IMap;
-import pipeline_builder.Covid19HashtagPipeline;
-import com.hazelcast.jet.aggregate.AggregateOperations;
 import com.hazelcast.jet.pipeline.BatchSource;
 import com.hazelcast.jet.pipeline.Pipeline;
 import com.hazelcast.jet.pipeline.Sinks;
 import com.hazelcast.jet.pipeline.Sources;
+import com.hazelcast.map.IMap;
+import com.hazelcast.jet.aggregate.AggregateOperations;
 import com.hazelcast.jet.pipeline.test.TestSources;
 
 
@@ -21,9 +20,7 @@ import java.nio.file.Files;
 import java.io.Serializable;
 import java.nio.file.Files;
 import java.time.format.DateTimeFormatter;
-import java.util.Comparator;
-import java.util.Locale;
-import java.util.Map;
+import java.util.*;
 
 public class BatchSourceCounting {
 
@@ -42,7 +39,7 @@ public class BatchSourceCounting {
         return p;
     }
 
-    private static Pipeline mentionStatistics(String sourceDir){
+    public static Pipeline mentionStatistics(String sourceDir){
         Pipeline p = Pipeline.create();
         BatchSource<Summary_Mentions> source = Sources.filesBuilder(sourceDir)
                 .glob("*.csv")

@@ -15,7 +15,7 @@ import java.util.List;
 
 public class MostRetweetedAndSentiment {
 
-    private static Pipeline topNRetweeted(int n, String sourceDir){
+    public static Pipeline topNRetweeted(int n, String sourceDir){
         Pipeline p1 = Pipeline.create();
         Pipeline p2 = Pipeline.create();
         // Build a batch source
@@ -33,7 +33,7 @@ public class MostRetweetedAndSentiment {
         return p1;
     }
 
-    private static Pipeline topNRetweetedSentiment(String sourceDir, IList<String> list){
+    public static Pipeline topNRetweetedSentiment(String sourceDir, IList<String> list){
         Pipeline p = Pipeline.create();
         BatchSource<Summary_Sentiment> source = Sources.filesBuilder(sourceDir)
                 .glob("*.csv")

@@ -1,7 +1,6 @@
 package Aggregation;
 
 import Filtering.entity.Hashtag;
-import com.hazelcast.jet.JetInstance;
 import com.hazelcast.jet.pipeline.*;
 
 import java.nio.file.Files;
@@ -38,9 +37,9 @@ public class DatewiseTweetsFiletring {
     }
 
     public static List<String> getHashtagDirectories(){
-        return Arrays.asList("M:\\Concordia\\Summer 2022\\COMP 6231\\project\\archive (5)\\Summary_Hashtag\\2022_01"
-                ,"M:\\Concordia\\Summer 2022\\COMP 6231\\project\\archive (5)\\Summary_Hashtag\\2022_02"
-                ,"M:\\Concordia\\Summer 2022\\COMP 6231\\project\\archive (5)\\Summary_Hashtag\\2022_03");
+        return Arrays.asList("M:\\Concordia\\Summer 2022\\COMP 6231\\project\\Dataset\\Summary_Hashtag\\2022_01");
+//                ,"M:\\Concordia\\Summer 2022\\COMP 6231\\project\\archive (5)\\Summary_Hashtag\\2022_02"
+//                ,"M:\\Concordia\\Summer 2022\\COMP 6231\\project\\archive (5)\\Summary_Hashtag\\2022_03");
     }
 
 }
